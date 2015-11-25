@@ -37,7 +37,13 @@ module EC2Find
 
     def findby tags
       ec2connect
-      @ec2client.describe_instances({dry_run: false, filters: tags}).reservations[0].instances
+      reservation = @ec2client.describe_instances({dry_run: false, filters: tags}).reservations[0]
+      if reservation.nil?
+        ui.msg("No instances match the mentioned tags")
+        []
+      else
+        reservation.instances
+      end
     end
 
   end
