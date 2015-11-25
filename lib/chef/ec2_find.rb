@@ -49,12 +49,17 @@ module EC2Find
     end
 
     def print_description instance, attributes=default_attributes
-      attributes.each do |attribute|
-        if config[:suppress_attribute_names].nil?
-          puts "#{attribute}\t#{instance.send(attribute)}"
-        else
-          puts "#{instance.send(attribute)}"
+      begin
+        attributes.each do |attribute|
+          unless config[:suppress_attribute_names]
+            puts "#{attribute}\t#{instance.send(attribute)}"
+          else
+            puts "#{instance.send(attribute)}"
+          end
         end
+      rescue Exception => e
+        puts e.message
+        ui.error("Please check the attribute name")
       end
     end
 
