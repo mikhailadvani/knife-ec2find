@@ -14,7 +14,7 @@ module EC2Find
             print_description resource
           end
         end
-        ui.msg("#{resources.size} resource(s) found")
+        ui.msg("#{resources.size} resource(s) found") unless config[:suppress_attribute_names]
       end
     end
 
