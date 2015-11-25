@@ -1,7 +1,6 @@
-require 'chef/knife'
-require 'aws-sdk'
+require_relative 'ec2_find_base'
 module EC2Find
-  class Ec2findInstance < Chef::Knife
+  class Ec2findInstance < Ec2findBase
 
     banner "knife ec2find instance TAGS"
 
@@ -30,53 +29,10 @@ module EC2Find
            :boolean => true,
            :default => false
 
-    def run
-      if validated?
-        instances = findby tag_filters
-        instances.each do |instance|
-          if config[:projection]
-            print_description instance, config[:projection].split(",")
-          else
-            print_description instance
-          end
-        end
-      end
-    end
 
     private
     def default_attributes
       ["instance_id", "image_id", "key_name", "subnet_id", "vpc_id", "private_ip_address", "public_ip_address", "tags"]
-    end
-
-    def print_description instance, attributes=default_attributes
-      begin
-        attributes.each do |attribute|
-          unless config[:suppress_attribute_names]
-            puts "#{attribute}\t#{instance.send(attribute)}"
-          else
-            puts "#{instance.send(attribute)}"
-          end
-        end
-      rescue Exception => e
-        ui.error("Please check the attribute name")
-        exit(1)
-      end
-    end
-
-    def validated?
-      ui.error("Please provide access key id") if config[:aws_access_key_id].nil?
-      ui.error("Please provide secret access key") if config[:aws_secret_access_key].nil?
-      ui.error("Please specify the selector tags") if config[:tags].nil?
-      !config[:aws_access_key_id].nil? && !config[:aws_secret_access_key].nil? && !config[:tags].nil?
-    end
-
-    def tag_filters
-      tags = []
-      config[:tags].split(",").each do |tag|
-        key, value = tag.split("=")
-        tags << {name: "tag:#{key}", values: [value]}
-      end
-      tags
     end
 
     def findby tags
@@ -84,13 +40,5 @@ module EC2Find
       @ec2client.describe_instances({dry_run: false, filters: tags}).reservations[0].instances
     end
 
-    def ec2connect
-      begin
-        @ec2client = Aws::EC2::Client.new(access_key_id: config[:aws_access_key_id], secret_access_key: config[:aws_secret_access_key])
-      rescue Aws::Errors::MissingRegionError => e
-        ui.error("Please provide AWS region as an enviroment variable")
-        exit(1)
-      end
-    end
   end
 end
