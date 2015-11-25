@@ -14,7 +14,7 @@ module EC2Find
             print_description resource
           end
         end
-        ui.msg("#{resources.size} resources found")
+        ui.msg("#{resources.size} resource(s) found")
       end
     end
 
