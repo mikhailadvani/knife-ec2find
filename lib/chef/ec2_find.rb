@@ -58,8 +58,8 @@ module EC2Find
           end
         end
       rescue Exception => e
-        puts e.message
         ui.error("Please check the attribute name")
+        exit(1)
       end
     end
 
@@ -80,7 +80,12 @@ module EC2Find
     end
 
     def findby tags
-      @ec2client = Aws::EC2::Client.new(access_key_id: config[:aws_access_key_id], secret_access_key: config[:aws_secret_access_key])
+      begin
+        @ec2client = Aws::EC2::Client.new(access_key_id: config[:aws_access_key_id], secret_access_key: config[:aws_secret_access_key])
+      rescue Aws::Errors::MissingRegionError => e
+        ui.error("Please provide AWS region as an enviroment variable")
+        exit(1)
+      end
       @ec2client.describe_instances({dry_run: false, filters: tags}).reservations[0].instances
     end
   end
