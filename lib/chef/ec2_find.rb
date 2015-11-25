@@ -80,13 +80,17 @@ module EC2Find
     end
 
     def findby tags
+      ec2connect
+      @ec2client.describe_instances({dry_run: false, filters: tags}).reservations[0].instances
+    end
+
+    def ec2connect
       begin
         @ec2client = Aws::EC2::Client.new(access_key_id: config[:aws_access_key_id], secret_access_key: config[:aws_secret_access_key])
       rescue Aws::Errors::MissingRegionError => e
         ui.error("Please provide AWS region as an enviroment variable")
         exit(1)
       end
-      @ec2client.describe_instances({dry_run: false, filters: tags}).reservations[0].instances
     end
   end
 end
