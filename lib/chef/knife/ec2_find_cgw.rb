@@ -2,7 +2,7 @@ require_relative 'ec2_find_base'
 module EC2Find
   class Ec2findCgw < Ec2findBase
 
-    banner "knife ec2find instance TAGS"
+    banner "knife ec2find cgw TAGS"
 
     option :tags,
            :short => "-T T=V[,T=V[,T=V...]]",
