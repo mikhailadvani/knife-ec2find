@@ -5,6 +5,9 @@ module EC2Find
   class Ec2findBase < Chef::Knife
 
     def run
+      @region = config[:region] || ENV["AWS_REGION"]
+      @access_key_id = config[:aws_access_key_id] || ENV["AWS_ACCESS_KEY_ID"]
+      @secret_access_key = config[:aws_secret_access_key] || ENV["AWS_SECRET_ACCESS_KEY"]
       if validated?
         resources = findby tag_filters
         resources.each do |resource|
@@ -36,10 +39,13 @@ module EC2Find
     end
 
     def validated?
-      ui.error("Please provide access key id") if config[:aws_access_key_id].nil?
-      ui.error("Please provide secret access key") if config[:aws_secret_access_key].nil?
+      ui.error("Please provide region") if @region.nil?
+      ui.error("Please provide access key id") if @access_key_id.nil?
+      ui.error("Please provide secret access key") if @secret_access_key.nil?
       ui.error("Please specify the selector tags") if config[:tags].nil?
-      !config[:aws_access_key_id].nil? && !config[:aws_secret_access_key].nil? && !config[:tags].nil?
+      x = !@region.nil? && !@access_key_id.nil? && !@secret_access_key.nil? && !config[:tags].nil?
+      puts x
+      x
     end
 
     def tag_filters
@@ -53,9 +59,9 @@ module EC2Find
 
     def ec2connect
       begin
-        @ec2client = Aws::EC2::Client.new(access_key_id: config[:aws_access_key_id], secret_access_key: config[:aws_secret_access_key])
-      rescue Aws::Errors::MissingRegionError => e
-        ui.error("Please provide AWS region as an enviroment variable")
+        @ec2client = Aws::EC2::Client.new(access_key_id: @access_key_id, secret_access_key: @secret_access_key, region: @region)
+      rescue Exception => e
+        ui.error(e.message)
         exit(1)
       end
     end
