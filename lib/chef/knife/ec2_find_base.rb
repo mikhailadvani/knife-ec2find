@@ -43,9 +43,7 @@ module EC2Find
       ui.error("Please provide access key id") if @access_key_id.nil?
       ui.error("Please provide secret access key") if @secret_access_key.nil?
       ui.error("Please specify the selector tags") if config[:tags].nil?
-      x = !@region.nil? && !@access_key_id.nil? && !@secret_access_key.nil? && !config[:tags].nil?
-      puts x
-      x
+      !@region.nil? && !@access_key_id.nil? && !@secret_access_key.nil? && !config[:tags].nil?
     end
 
     def tag_filters
