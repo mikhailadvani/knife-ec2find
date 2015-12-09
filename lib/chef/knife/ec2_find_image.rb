@@ -7,7 +7,7 @@ module EC2Find
     option :tags,
            :short => "-T T=V[,T=V[,T=V...]]",
            :long => "--tags Tag=Value[,Tag=Value[,Tag=Value...]]",
-           :description => "Lists instances created with set of tags"
+           :description => "Lists AMIs created with set of tags"
 
     option :aws_access_key_id,
            :long => "--aws-access-key-id KEY",
