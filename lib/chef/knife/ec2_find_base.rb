@@ -23,13 +23,23 @@ module EC2Find
 
     private
 
+    def value resource, attribute
+      attribute_hierarchy_sequence = attribute.split(".")
+      container_value = resource.send(attribute_hierarchy_sequence[0])
+      if attribute_hierarchy_sequence.length == 1
+        return container_value
+      else
+        return value container_value, attribute_hierarchy_sequence[1..(attribute_hierarchy_sequence.length - 1)].join(".")
+      end
+    end
+
     def print_description resource, attributes=default_attributes
       begin
         attributes.each do |attribute|
           unless config[:suppress_attribute_names]
-            puts "#{attribute}\t#{resource.send(attribute)}"
+            puts "#{attribute}\t#{value(resource,attribute)}"
           else
-            puts "#{resource.send(attribute)}"
+            puts "#{value(resource,attribute)}"
           end
         end
       rescue Exception => e
