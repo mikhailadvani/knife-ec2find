@@ -25,18 +25,37 @@ module EC2Find
 
     def attribute_values resource, attribute
       attribute_hierarchy_sequence = attribute.split(".")
-      container_value = resource.send(attribute_hierarchy_sequence[0])
-      if attribute_hierarchy_sequence.length == 1
-        return container_value
-      else
-        return attribute_values container_value, attribute_hierarchy_sequence[1..(attribute_hierarchy_sequence.length - 1)].join(".")
+      container_values = resource.send(attribute_hierarchy_sequence[0])
+      container_values = [container_values] unless container_values.class.eql?(Array)
+      values = []
+      container_values.each do |container_value|
+        if attribute_hierarchy_sequence.length == 1
+          values << container_value
+        else
+          values << attribute_values(container_value, attribute_hierarchy_sequence[1..(attribute_hierarchy_sequence.length - 1)].join("."))
+        end
       end
+      values
     end
 
+    def format_values values
+      if values[0].class.eql?(Array)
+        formatted_values = values.join(",")
+        return formatted_values
+      else
+        formatted_values = []
+        values.each do |struct_value|
+          struct_value.to_hash.each do |k, v|
+            formatted_values << "#{k}=\"#{v}\""
+          end
+        end
+        return formatted_values.join(",")
+      end
+    end
     def print_description resource, attributes=default_attributes
       begin
         attributes.each do |attribute|
-          values = attribute_values(resource, attribute)
+          values = format_values(attribute_values(resource, attribute))
           unless config[:suppress_attribute_names]
             puts "#{attribute}\t#{values}"
           else
