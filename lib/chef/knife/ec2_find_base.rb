@@ -36,8 +36,8 @@ module EC2Find
     def print_description resource, attributes=default_attributes
       begin
         attributes.each do |attribute|
+          values = attribute_values(resource, attribute)
           unless config[:suppress_attribute_names]
-            values = attribute_values(resource, attribute)
             puts "#{attribute}\t#{values}"
           else
             puts "#{values}"
